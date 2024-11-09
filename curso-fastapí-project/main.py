@@ -1,6 +1,10 @@
 from zoneinfo import ZoneInfo
 from fastapi import FastAPI
 import time
+from pydantic import BaseModel
+
+class Customer(BaseModel):
+    ...
 
 app = FastAPI()
 
