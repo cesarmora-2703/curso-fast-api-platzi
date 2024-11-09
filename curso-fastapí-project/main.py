@@ -4,7 +4,11 @@ import time
 from pydantic import BaseModel
 
 class Customer(BaseModel):
-    ...
+    name: str
+    description: str | None
+    email:str
+    age: int
+    
 
 app = FastAPI()
 
@@ -34,4 +38,9 @@ async def time_now(iso_code: str, format:str):
     if format == "12":
         formatted_time_am_pm = time.strftime("%I:%M:%S %p", time_now)
         return {"Time": formatted_time_am_pm, "Zone": tz}
+    
+
+@app.post("/customers") # Metodo cambiado de get a post
+async def create_customer(customer_data: Customer):
+    return customer_data
     
