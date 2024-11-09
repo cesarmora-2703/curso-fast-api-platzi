@@ -1,11 +1,13 @@
 from zoneinfo import ZoneInfo
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 import time
 
+from sqlmodel import select
+
 from models import Customer, CustomerCreate, Transaction, Invoice
+from db import SessionDep, create_all_tables
 
-
-app = FastAPI()
+app = FastAPI(lifespan=create_all_tables)
 
 
 @app.get("/")
@@ -38,29 +40,26 @@ async def time_now(iso_code: str, format: str):
         return {"Time": formatted_time_am_pm, "Zone": tz}
 
 
-db_customers: list[Customer] = []
-
 @app.post("/customers", response_model=Customer)
-async def create_customer(customer_data: CustomerCreate):
+async def create_customer(customer_data: CustomerCreate, session: SessionDep):
     customer = Customer.model_validate(customer_data.model_dump())
-    # Asumiendo que hace base de datos
-    customer.id = len(db_customers)
-    db_customers.append(customer)
+    session.add(customer)
+    session.commit()
+    session.refresh(customer)
     return customer
-    
+
 
 @app.get("/customers", response_model=list[Customer])  # Metodo cambiado de get a post
-async def list_customer():
-    return db_customers
+async def list_customer(session: SessionDep):
+    return session.exec(select(Customer)).all()
+
 
 @app.get("/customers/{id}", response_model=Customer)
-async def detail_customer(id: int):
-    try:
-        customer = db_customers[id]
-        return customer
-    except:
-        return None
-
+async def detail_customer(id: int, session: SessionDep) -> Customer:
+    customer = session.get(Customer, id)
+    if not customer:
+        raise HTTPException(status_code=404, detail="Customer not found")
+    return customer
 
 
 @app.post("/invoices")  # Metodo cambiado de get a post
