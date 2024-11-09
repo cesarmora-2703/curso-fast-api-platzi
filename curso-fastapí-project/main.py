@@ -1,9 +1,8 @@
 from zoneinfo import ZoneInfo
-from fastapi import FastAPI, HTTPException
 import time
 
 from sqlmodel import select
-
+from fastapi import FastAPI, HTTPException
 from models import Customer, CustomerCreate, Transaction, Invoice
 from db import SessionDep, create_all_tables
 
