@@ -54,7 +54,7 @@ async def list_customer(session: SessionDep):
 
 
 @app.get("/customers/{id}", response_model=Customer)
-async def detail_customer(id: int, session: SessionDep) -> Customer:
+async def detail_customer(id: int, session: SessionDep):
     customer = session.get(Customer, id)
     if not customer:
         raise HTTPException(status_code=404, detail="Customer not found")
@@ -62,7 +62,7 @@ async def detail_customer(id: int, session: SessionDep) -> Customer:
 
 
 @app.delete("/customers/{id}")
-async def delete_customer(id: int, session: SessionDep) -> Customer:
+async def delete_customer(id: int, session: SessionDep):
     customer = session.get(Customer, id)
     if not customer:
         raise HTTPException(status_code=404, detail="Customer not found")
@@ -71,11 +71,22 @@ async def delete_customer(id: int, session: SessionDep) -> Customer:
     return {"detail": "ok"}
 
 @app.patch("/customers/{id}", response_model=Customer, status_code=status.HTTP_201_CREATED,)
-async def update_customer(id: int, customer_data: CustomerUpdate, session: SessionDep) -> Customer:
+async def update_customer(id: int, customer_data: CustomerUpdate, session: SessionDep):
     customer = session.get(Customer, id)
     if not customer:
         raise HTTPException(status_code=404, detail="Customer not found")
+    old_data = customer_data
     update_data = customer_data.model_dump(exclude_unset=True)
+    #Revisando cambios de los datos
+    if old_data.name != update_data['name']:
+        update_data['name'] = old_data.name
+    if old_data.description != update_data['description']:
+        update_data['description'] = old_data.description
+    if old_data.email != update_data['email']:
+        update_data['email'] = old_data.email    
+    if old_data.age != update_data['age']:
+        update_data['age'] = old_data.age
+
     customer.sqlmodel_update(update_data)
     session.add(customer)
     session.commit()
