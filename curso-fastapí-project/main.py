@@ -61,6 +61,28 @@ async def detail_customer(id: int, session: SessionDep) -> Customer:
     return customer
 
 
+@app.delete("/customers/{id}")
+async def delete_customer(id: int, session: SessionDep) -> Customer:
+    customer = session.get(Customer, id)
+    if not customer:
+        raise HTTPException(status_code=404, detail="Customer not found")
+    session.delete(customer)
+    session.commit()
+    return {"detail": "ok"}
+
+@app.put("/customers/{id}", response_model=Customer)
+async def update_customer(id: int, customer_data: CustomerCreate, session: SessionDep) -> Customer:
+    customer = session.get(Customer, id)
+    if not customer:
+        raise HTTPException(status_code=404, detail="Customer not found")
+    update_data = customer_data.model_dump(exclude_unset=True)
+    customer.sqlmodel_update(update_data)
+    session.add(customer)
+    session.commit()
+    session.refresh(customer)
+    return customer
+
+
 @app.post("/invoices")  # Metodo cambiado de get a post
 async def create_invoice(invoice_data: Invoice):
     return invoice_data
