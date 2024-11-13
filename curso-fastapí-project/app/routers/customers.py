@@ -1,7 +1,14 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, Query, status
 from sqlmodel import select
 
-from models import Customer, CustomerCreate, CustomerPlan, CustomerUpdate, Plan
+from models import (
+    Customer,
+    CustomerCreate,
+    CustomerPlan,
+    CustomerUpdate,
+    Plan,
+    StatusEnum,
+)
 from db import SessionDep
 
 router = APIRouter()
@@ -72,7 +79,10 @@ async def update_customer(id: int, customer_data: CustomerUpdate, session: Sessi
 
 @router.post("/customers/{customer_id}/plans/{plan_id}", tags=["plans"])
 async def suscribe_customer_to_plan(
-    customer_id: int, plan_id: int, session: SessionDep
+    customer_id: int,
+    plan_id: int,
+    session: SessionDep,
+    plan_status: StatusEnum = Query(),
 ):
     customer_db = session.get(Customer, customer_id)
     plan_db = session.get(Plan, plan_id)
@@ -84,7 +94,9 @@ async def suscribe_customer_to_plan(
             detail="Customer or Plan doesn't exist.",
         )
 
-    customer_plan_db = CustomerPlan(plan_id=plan_db.id, customer_id=customer_db.id)
+    customer_plan_db = CustomerPlan(
+        plan_id=plan_db.id, customer_id=customer_db.id, status=plan_status
+    )
     session.add(customer_plan_db)
     session.commit()
     session.refresh(customer_plan_db)
@@ -92,7 +104,9 @@ async def suscribe_customer_to_plan(
 
 
 @router.get("/customers/{customer_id}/plans", tags=["customers"])
-async def customer_suscribed_to_plan(customer_id: int, session: SessionDep):
+async def customer_suscribed_to_plan(
+    customer_id: int, session: SessionDep, plan_status: StatusEnum = Query()
+):
     customer_db = session.get(Customer, customer_id)
 
     if not customer_db:
@@ -101,6 +115,7 @@ async def customer_suscribed_to_plan(customer_id: int, session: SessionDep):
     query = (
         select(CustomerPlan)
         .where(CustomerPlan.customer_id == customer_id)
+        .where(CustomerPlan.status == plan_status)
     )
     plans = session.exec(query).all()
     return plans
