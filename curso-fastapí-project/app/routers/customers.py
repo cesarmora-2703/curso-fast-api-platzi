@@ -84,10 +84,10 @@ async def suscribe_customer_to_plan(
     session: SessionDep,
     plan_status: StatusEnum = Query(),
 ):
+
     customer_db = session.get(Customer, customer_id)
     plan_db = session.get(Plan, plan_id)
-    print(customer_db)
-    print(plan_db)
+
     if not customer_db or not plan_db:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
