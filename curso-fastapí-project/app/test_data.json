@@ -1,0 +1,41 @@
+[
+  {
+    "name": "Bruce Wayne",
+    "description": "Batman",
+    "email": "wayne@wayneenterprises.com",
+    "age": 30
+  },
+  {
+    "name": "Clark Kent",
+    "description": "Superman",
+    "email": "CKent@dailyplanet.com",
+    "age": 35
+  },
+  {
+    "name": "Diana Prince",
+    "description": "Wonder Woman",
+    "email": "DPrince@dcomics.com",
+    "age": 33
+  }
+]
+
+[
+  {
+    "id": 1,
+    "name": "Basic",
+    "price": 100,
+    "description": "El mas limitado"
+  },
+  {
+    "id": 2,
+    "name": "Medium",
+    "price": 500,
+    "description": "El mas accesible"
+  },
+  {
+    "id": 3,
+    "name": "Premium",
+    "price": 1000,
+    "description": "El mas poderoso"
+  }
+]
