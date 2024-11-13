@@ -16,6 +16,12 @@
     "description": "Wonder Woman",
     "email": "DPrince@dcomics.com",
     "age": 33
+  },
+  {
+    "name": "Tony Stark",
+    "description": "Iron Man",
+    "email": "tstark@starkindustries.com",
+    "age": 40
   }
 ]
 
