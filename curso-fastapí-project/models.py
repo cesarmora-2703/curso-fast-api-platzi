@@ -3,6 +3,7 @@ from pydantic import BaseModel, EmailStr, field_validator
 from sqlmodel import SQLModel, Field, Relationship, Session, select
 from db import engine
 
+
 class StatusEnum(str, Enum):
     ACTIVE = "active"
     INACTIVE = "inactive"
@@ -30,13 +31,13 @@ class CustomerBase(SQLModel):
     description: str | None = Field(default=None)
     email: EmailStr = Field(default=None)
     age: int = Field(default=None)
-    
+
     @field_validator("email")
     @classmethod
     def validate_email(cls, value):
         session = Session(engine)
         query = select(Customer).where(Customer.email == value)
-        result =session.exec(query).first()
+        result = session.exec(query).first()
         if result:
             raise ValueError("This email is already created.")
         return value
@@ -59,8 +60,15 @@ class Customer(CustomerBase, table=True):
 
 
 class TransactionBase(SQLModel):
-    amount: int
-    description: str
+    amount: int = Field()
+    description: str = Field(default=None)
+
+    @field_validator("amount")
+    @classmethod
+    def validate_email(cls, value):
+        if value <= 0:
+            raise ValueError("Amount couuld not be zero.")
+        return value
 
 
 class Transaction(TransactionBase, table=True):
